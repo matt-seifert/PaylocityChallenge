@@ -8,6 +8,7 @@ public class GetEmployeeDto
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public decimal Salary { get; set; }
+    public decimal PaycheckAmount { get; set; } 
     public DateTime DateOfBirth { get; set; }
     public ICollection<GetDependentDto> Dependents { get; set; } = new List<GetDependentDto>();
 }
