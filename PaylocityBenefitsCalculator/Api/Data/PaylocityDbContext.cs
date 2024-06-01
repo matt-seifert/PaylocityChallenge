@@ -38,6 +38,22 @@ namespace Api.Data
                     LastName = "Jordan",
                     Salary = 143211.12m,
                     DateOfBirth = new DateTime(1963, 2, 17)
+                },
+                new Employee
+                {
+                    Id = 4,
+                    FirstName = "Poly",
+                    LastName = "Gamist",
+                    Salary = 145876.12m,
+                    DateOfBirth = new DateTime(1963, 2, 17)
+                },
+                new Employee
+                {
+                    Id = 5,
+                    FirstName = "Rule",
+                    LastName = "Breaker",
+                    Salary = 145876.12m,
+                    DateOfBirth = new DateTime(1963, 2, 17)
                 }
             );
 
@@ -77,6 +93,42 @@ namespace Api.Data
                     Relationship = Relationship.DomesticPartner,
                     DateOfBirth = new DateTime(1974, 1, 2),
                     EmployeeId = 3
+                },
+                new Dependent
+                {
+                    Id = 5,
+                    FirstName = "Wife",
+                    LastName = "One",
+                    Relationship = Relationship.Spouse,
+                    DateOfBirth = new DateTime(1982, 3, 4),
+                    EmployeeId = 4
+                },
+                new Dependent
+                {
+                    Id = 6,
+                    FirstName = "Wife",
+                    LastName = "Two",
+                    Relationship = Relationship.Spouse,
+                    DateOfBirth = new DateTime(1976, 2, 1),
+                    EmployeeId = 4
+                },
+                new Dependent
+                {
+                    Id = 7,
+                    FirstName = "Domestic",
+                    LastName = "Partner",
+                    Relationship = Relationship.DomesticPartner,
+                    DateOfBirth = new DateTime(1982, 3, 4),
+                    EmployeeId = 5
+                },
+                new Dependent
+                {
+                    Id = 8,
+                    FirstName = "Spouse",
+                    LastName = "LikeAHouse",
+                    Relationship = Relationship.Spouse,
+                    DateOfBirth = new DateTime(1976, 2, 1),
+                    EmployeeId = 5
                 }
             );
 

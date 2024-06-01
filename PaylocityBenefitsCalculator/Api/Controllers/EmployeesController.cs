@@ -57,6 +57,17 @@ public class EmployeesController : ControllerBase
                 });
             }
 
+            // Check for multiple spouses or domestic partners
+            if (employee.Dependents.Count(d => d.Relationship == Relationship.Spouse || d.Relationship == Relationship.DomesticPartner) > 1)
+            {
+                return BadRequest(new ApiResponse<GetEmployeeDto>
+                {
+                    Data = null,
+                    Message = "An employee may only have 1 spouse or domestic partner (not both).",
+                    Success = false
+                });
+            }
+
             // Return the employee data in an ApiResponse
             return Ok(new ApiResponse<GetEmployeeDto>
             {
@@ -103,6 +114,20 @@ public class EmployeesController : ControllerBase
                 })
                 .ToListAsync(); // Execute the query and convert the result to a list
 
+            // Check for multiple spouses or domestic partners in each employee
+            foreach (var employee in employees)
+            {
+                if (employee.Dependents.Count(d => d.Relationship == Relationship.Spouse || d.Relationship == Relationship.DomesticPartner) > 1)
+                {
+                    return BadRequest(new ApiResponse<List<GetEmployeeDto>>
+                    {
+                        Data = null,
+                        Message = $"Employee with ID {employee.Id} has multiple spouses or domestic partners.",
+                        Success = false
+                    });
+                }
+            }
+
             // Return the list of employees in an ApiResponse
             return Ok(new ApiResponse<List<GetEmployeeDto>>
             {
@@ -125,7 +150,7 @@ public class EmployeesController : ControllerBase
 
     // GET: api/Employees/{id}/paycheck
     [HttpGet("{id}/paycheck")]
-    public async Task<ActionResult<ApiResponse<GetEmployeeDto>>> GetPaycheck(int id)
+    public async Task<ActionResult<ApiResponse<decimal>>> GetPaycheck(int id)
     {
         try
         {
@@ -145,7 +170,7 @@ public class EmployeesController : ControllerBase
             // Calculate paycheck using a private method
             var paycheckDto = CalculatePaycheck(employee);
 
-            return Ok(new ApiResponse<GetEmployeeDto>
+            return Ok(new ApiResponse<decimal>
             {
                 Data = paycheckDto.Result,
                 Message = "Success",
@@ -164,7 +189,7 @@ public class EmployeesController : ControllerBase
     }
 
     // I figured breaking this somewhat complex calculation into its own private method would help in keeping the controller methods clean and more maintainable.
-    private async Task<GetEmployeeDto> CalculatePaycheck(Employee employee)
+    private async Task<decimal> CalculatePaycheck(Employee employee)
     {
         // Fetch the current Benefits Rates
         var benefitsRates = await _context.BenefitsRates
@@ -196,23 +221,7 @@ public class EmployeesController : ControllerBase
         var biWeeklyDeductions = monthlyDeductions / 2;
         var netPay = grossPay - biWeeklyDeductions;
 
-        // Return the EmployeeDto with new Paycheck value
-        return new GetEmployeeDto
-        {
-            Id = employee.Id,
-            FirstName = employee.FirstName,
-            LastName = employee.LastName,
-            Salary = employee.Salary,
-            PaycheckAmount = netPay,
-            DateOfBirth = employee.DateOfBirth,
-            Dependents = employee.Dependents.Select(d => new GetDependentDto
-            {
-                Id = d.Id,
-                FirstName = d.FirstName,
-                LastName = d.LastName,
-                DateOfBirth = d.DateOfBirth,
-                Relationship = d.Relationship
-            }).ToList()
-        };
+        // Return the Net Pay
+        return netPay;
     }
 }

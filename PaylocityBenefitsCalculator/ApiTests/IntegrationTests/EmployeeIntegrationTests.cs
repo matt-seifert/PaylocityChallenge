@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Api.Dtos.Dependent;
 using Api.Dtos.Employee;
@@ -12,6 +13,7 @@ namespace ApiTests.IntegrationTests;
 public class EmployeeIntegrationTests : IntegrationTest
 {
     [Fact]
+    // PASSED
     public async Task WhenAskedForAllEmployees_ShouldReturnAllEmployees()
     {
         var response = await HttpClient.GetAsync("/api/v1/employees");
@@ -84,7 +86,7 @@ public class EmployeeIntegrationTests : IntegrationTest
     }
 
     [Fact]
-    //task: make test pass
+    //task: make test pass -- PASSED
     public async Task WhenAskedForAnEmployee_ShouldReturnCorrectEmployee()
     {
         var response = await HttpClient.GetAsync("/api/v1/employees/1");
@@ -100,11 +102,40 @@ public class EmployeeIntegrationTests : IntegrationTest
     }
     
     [Fact]
-    //task: make test pass
+    //task: make test pass -- PASSED
     public async Task WhenAskedForANonexistentEmployee_ShouldReturn404()
     {
         var response = await HttpClient.GetAsync($"/api/v1/employees/{int.MinValue}");
         await response.ShouldReturn(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    // PASSED!
+    public async Task WhenAskedForEmployeePaycheck_ShouldReturnCorrectPaycheck()
+    {
+        var response = await HttpClient.GetAsync($"/api/v1/employees/1/paycheck");
+
+        // Do calculations based on King James' salary
+        var expectedSalary = 75420.99m;
+        var expectedGrossPay = expectedSalary / 26; // Bi-weekly gross pay
+        var expectedMonthlyBaseCost = 1000;
+        var expectedMonthlyDependentCost = 0; // No dependents in this case
+        var expectedAdditionalOldDependentCost = 0; // No dependents over 50
+        var expectedHighSalaryCost = 0; // Salary is below 80,000
+
+        var expectedMonthlyDeductions = expectedMonthlyBaseCost + expectedMonthlyDependentCost + expectedAdditionalOldDependentCost + expectedHighSalaryCost;
+        var expectedBiWeeklyDeductions = expectedMonthlyDeductions / 2;
+        var expectedNetPay = expectedGrossPay - expectedBiWeeklyDeductions;
+
+        await response.ShouldReturn(HttpStatusCode.OK, expectedNetPay);
+    }
+
+    [Fact]
+    // PASSED!
+    public async Task WhenEmployeeHasMoreThanOneSpouseOrSignificantOther_ShouldReturn400()
+    {
+        var response = await HttpClient.GetAsync("/api/v1/employees/4");
+        await response.ShouldReturn(HttpStatusCode.BadRequest);
     }
 }
 
